@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Work / ADRs{% endblock %}
+{% block meta_description %}Engineering work and architecture decisions by Surendra — real problems, real solutions, real impact metrics.{% endblock %}
+
+{% block content %}
+<hgroup>
+  <h1>Work &amp; Architecture Decisions</h1>
+  <p>Real engineering problems solved at Walmart, Adobe and IBM — with context, decisions, architecture diagrams and measurable outcomes.</p>
+</hgroup>
+
+{% set featured = case_studies | selectattr("featured") | list %}
+{% set others = case_studies | rejectattr("featured") | list %}
+
+  {% if featured %}
+<section>
+  <h2>Featured Work</h2>
+  {% for cs in featured %}
+  <article>
+    <header style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem;">
+      <div>
+        {% for tag in cs.tags %}
+        <span class="tag {{ tag }}">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      <small style="color:var(--pico-muted-color);">{{ cs.period }}</small>
+    </header>
+    <h3 style="margin:0.75rem 0 0.25rem;">
+      <a href="{{ root }}work/{{ cs.slug }}/index.html">{{ cs.title }}</a>
+    </h3>
+    <p style="color:var(--pico-muted-color); margin:0 0 0.75rem; font-size:0.9rem;">{{ cs.subtitle }}</p>
+    <p style="margin:0 0 1rem;">{{ cs.summary }}</p>
+
+    <div style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+      {% for result in cs.results[:3] %}
+      <div style="text-align:center;">
+        <strong style="font-size:1.3rem; color:var(--pico-primary);">{{ result.metric }}</strong>
+        <br><small style="color:var(--pico-muted-color);">{{ result.label }}</small>
+      </div>
+      {% endfor %}
+    </div>
+
+    <footer>
+      <a href="{{ root }}work/{{ cs.slug }}/index.html">Read full case study &rarr;</a>
+    </footer>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if others %}
+<section>
+  <h2>More Case Studies</h2>
+  {% for cs in others %}
+  <article>
+    <header style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; flex-wrap:wrap;">
+      <div>
+        {% for tag in cs.tags %}
+        <span class="tag {{ tag }}">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      <small style="color:var(--pico-muted-color);">{{ cs.period }}</small>
+    </header>
+    <h4 style="margin:0.5rem 0 0.25rem;">
+      <a href="{{ root }}work/{{ cs.slug }}/index.html">{{ cs.title }}</a>
+    </h4>
+    <p style="margin:0;">{{ cs.summary }}</p>
+    <footer>
+      <a href="{{ root }}work/{{ cs.slug }}/index.html">Read full case study &rarr;</a>
+    </footer>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

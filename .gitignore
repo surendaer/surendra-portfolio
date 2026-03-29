@@ -1,0 +1,24 @@
+# Python build output (root level only)
+/public/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Environment
+.env
+.env.*
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python virtual envs
+venv/
+.venv/
+
+# Local test suite (not part of the deployment pipeline)
+tests/
+watch_and_test.py
+

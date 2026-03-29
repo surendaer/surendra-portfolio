@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{% block meta_description %}Surendra — Senior DevOps &amp; Platform Engineer based in Dubai.{% endblock %}">
+  <title>{% block title %}Home{% endblock %} | thesurendra.com</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <style>
+    :root { --pico-font-size: 16px; }
+    nav a { text-decoration: none; }
+    .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--pico-primary-background);
+      color: var(--pico-primary-inverse);
+      margin-right: 0.3rem;
+    }
+    .tag.engineering { background: #1a6b4a; }
+    .tag.platform    { background: #1a3d6b; }
+    .tag.aws         { background: #b35a00; }
+    .tag.devops      { background: #4a1a6b; }
+    .tag.ai          { background: #6b1a3d; }
+    .tag.startup     { background: #2d6b1a; }
+    .tag.career      { background: #6b5a1a; }
+    .site-footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      border-top: 1px solid var(--pico-muted-border-color);
+      font-size: 0.85rem;
+      color: var(--pico-muted-color);
+    }
+    .site-footer a { color: var(--pico-muted-color); }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <li><strong><a href="{{ root }}index.html">thesurendra.com</a></strong></li>
+      </ul>
+      <ul>
+        <li><a href="{{ root }}news/index.html">News</a></li>
+        <li><a href="{{ root }}work/index.html">Work / ADRs</a></li>
+        <li><a href="{{ root }}projects/index.html">Projects</a></li>
+        <li><a href="{{ root }}resume/index.html">Resume</a></li>
+        <li><a href="{{ root }}architecture/index.html">Architecture</a></li>
+        <li><a href="{{ root }}blog/index.html">Blog</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="container site-footer">
+    <small>
+      Built with Python + Jinja2 &middot; Deployed via GitLab CI &middot;
+      <a href="https://gitlab.com/surendaer/surendra-portfolio" target="_blank" rel="noopener">Source</a>
+      &middot;
+      <a href="https://linkedin.com/in/surendra" target="_blank" rel="noopener">LinkedIn</a>
+    </small>
+  </footer>
+</body>
+</html>

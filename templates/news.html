@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Daily Tech News{% endblock %}
+{% block meta_description %}Daily curated tech news for platform engineers — scraped from TechCrunch, HackerNews, AWS, Kubernetes and more.{% endblock %}
+
+{% block content %}
+<hgroup>
+  <h1>Daily Tech News</h1>
+  <p>Auto-updated every day via GitLab CI &middot; Last updated: <strong>{{ last_updated }}</strong></p>
+</hgroup>
+
+{% if not articles %}
+<p><em>No articles available right now. Check back after the next pipeline run.</em></p>
+{% else %}
+
+<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+  <strong>Filter:</strong>
+  <a href="{{ root }}news/index.html" role="button" class="outline" style="padding:0.2rem 0.7rem; font-size:0.8rem;">All</a>
+  {% for tag in all_tags %}
+  <a href="{{ root }}news/{{ tag }}.html" role="button" class="outline" style="padding:0.2rem 0.7rem; font-size:0.8rem;">{{ tag }}</a>
+  {% endfor %}
+</div>
+
+{% for article in articles %}
+<article>
+  <header>
+    {% for tag in article.tags %}
+    <span class="tag {{ tag }}">{{ tag }}</span>
+    {% endfor %}
+    <small style="margin-left:0.5rem; color:var(--pico-muted-color);">{{ article.source_name }} &middot; {{ article.relative_time }}</small>
+  </header>
+  <h4 style="margin:0.5rem 0;">
+    <a href="{{ article.link }}" target="_blank" rel="noopener">{{ article.title }}</a>
+  </h4>
+  <p style="margin:0; color:var(--pico-muted-color);">{{ article.summary }}</p>
+</article>
+{% endfor %}
+
+{% endif %}
+{% endblock %}

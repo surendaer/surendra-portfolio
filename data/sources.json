@@ -1,0 +1,27 @@
+[
+  {
+    "url": "https://techcrunch.com/feed/",
+    "name": "TechCrunch",
+    "tags": ["startup", "ai"]
+  },
+  {
+    "url": "https://hnrss.org/frontpage",
+    "name": "HackerNews",
+    "tags": ["engineering"]
+  },
+  {
+    "url": "https://feeds.feedburner.com/ThePragmaticEngineer",
+    "name": "Pragmatic Engineer",
+    "tags": ["career"]
+  },
+  {
+    "url": "https://kubernetes.io/feed.xml",
+    "name": "Kubernetes Blog",
+    "tags": ["platform"]
+  },
+  {
+    "url": "https://aws.amazon.com/blogs/devops/feed/",
+    "name": "AWS DevOps Blog",
+    "tags": ["aws", "devops"]
+  }
+]

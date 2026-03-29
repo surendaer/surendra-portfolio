@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Projects{% endblock %}
+{% block meta_description %}Open source projects by Surendra — Kubernetes, AWS, Python, DevOps tooling.{% endblock %}
+
+{% block content %}
+<hgroup>
+  <h1>Projects</h1>
+  <p>{{ projects | length }} public repositories &middot; Sorted by last commit</p>
+</hgroup>
+
+{% for project in projects %}
+<article>
+  <header style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem;">
+    <div>
+      <strong>{{ project.name }}</strong>
+      &nbsp;
+      {% for tag in project.tags %}
+      <span class="tag {{ tag }}">{{ tag }}</span>
+      {% endfor %}
+    </div>
+    <small style="color:var(--pico-muted-color);">
+      &#9733; {{ project.stars }} &nbsp; &#9902; {{ project.forks }}
+      &nbsp;&middot;&nbsp; Last commit: {{ project.last_commit }}
+    </small>
+  </header>
+  <p style="margin:0.5rem 0 0.5rem;">{{ project.description }}</p>
+  <footer>
+    <span style="font-size:0.8rem; color:var(--pico-muted-color);">&#9679; {{ project.language }}</span>
+    &nbsp;
+    <a href="{{ project.github_url }}" target="_blank" rel="noopener" style="font-size:0.85rem;">View Repository &rarr;</a>
+  </footer>
+</article>
+{% endfor %}
+{% endblock %}

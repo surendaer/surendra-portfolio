@@ -1,19 +1,59 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/user/application_security/sast/#available-cicd-variables
-# Secret Detection customization: https://docs.gitlab.com/user/application_security/secret_detection/pipeline/configure/
-# Dependency Scanning customization: https://docs.gitlab.com/user/application_security/dependency_scanning/#customizing-analyzer-behavior
-# Container Scanning customization: https://docs.gitlab.com/user/application_security/container_scanning/#customizing-analyzer-behavior
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ci/variables/#cicd-variable-precedence
-# stages:
-# - test
-# - secret-detection
-# sast:
-#   stage: test
-# include:
-# - template: Security/SAST.gitlab-ci.yml
-# - template: Security/Secret-Detection.gitlab-ci.yml
-# variables:
-#   SECRET_DETECTION_ENABLED: 'true'
-# secret_detection:
-#   stage: secret-detection
+image: node:20-slim
+
+stages:
+  - prepare
+  - build
+  - deploy
+
+variables:
+  NODE_ENV: production
+
+scrape-news:
+  stage: prepare
+  image: python:3.11-slim
+  before_script:
+    - pip install --quiet feedparser requests python-dateutil
+    - mkdir -p site/public/data
+  script:
+    - python scraper.py
+  artifacts:
+    paths:
+      - site/public/data/news.json
+    expire_in: 25 hours
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+build-site:
+  stage: build
+  before_script:
+    - npm ci --prefix site
+  script:
+    - npm run build --prefix site
+    # Next.js static export goes to site/out/ → rename to public/ for GitLab Pages
+    - mv site/out public
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 hour
+  needs:
+    - scrape-news
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+pages:
+  stage: deploy
+  script:
+    - echo "Deploying to GitLab Pages"
+  artifacts:
+    paths:
+      - public
+  needs:
+    - build-site
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"

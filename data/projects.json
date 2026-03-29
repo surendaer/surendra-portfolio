@@ -1,0 +1,52 @@
+[
+  {
+    "name": "surendra-systems",
+    "description": "GitLab group namespace and entry point for all public engineering work. Index of all repositories, documentation, and architecture references.",
+    "language": "Markdown",
+    "stars": 0,
+    "forks": 0,
+    "last_commit": "2026-03-25",
+    "gitlab_url": "https://gitlab.com/surendaer",
+    "tags": ["platform", "gitops"]
+  },
+  {
+    "name": "surendra-portfolio",
+    "description": "This site. Zero-cost personal engineering portfolio with auto-updated tech news. Python scraper + Next.js static site, deployed via GitLab CI to GitLab Pages.",
+    "language": "Python / TypeScript",
+    "stars": 0,
+    "forks": 0,
+    "last_commit": "2026-03-25",
+    "gitlab_url": "https://gitlab.com/surendaer/surendra-portfolio",
+    "tags": ["python", "devops", "gitops"]
+  },
+  {
+    "name": "surendra-platform",
+    "description": "Production-grade platform engineering reference implementation: ArgoCD GitOps with round-robin controller sharding, ApplicationSets, CASC for Jenkins, and automated Kubernetes DR using Velero + Ansible-Helm.",
+    "language": "YAML / Python",
+    "stars": 0,
+    "forks": 0,
+    "last_commit": "2026-03-01",
+    "gitlab_url": "https://gitlab.com/surendaer/surendra-platform",
+    "tags": ["kubernetes", "gitops", "platform"]
+  },
+  {
+    "name": "surendra-mlops",
+    "description": "MLOps platform reference: model CI/CD pipelines, artifact versioning, secure model deployment on Kubernetes. Covers GenAI model serving, prompt versioning, and ML infrastructure on AWS/GCP.",
+    "language": "Python / YAML",
+    "stars": 0,
+    "forks": 0,
+    "last_commit": "2026-02-15",
+    "gitlab_url": "https://gitlab.com/surendaer/surendra-mlops",
+    "tags": ["platform", "aws", "devops"]
+  },
+  {
+    "name": "surendra-observability",
+    "description": "Full SRE observability stack: Prometheus, Grafana, Alertmanager with SLO burn-rate alerting, error budget dashboards, and on-call runbook templates. Based on Google SRE practices.",
+    "language": "YAML",
+    "stars": 0,
+    "forks": 0,
+    "last_commit": "2026-01-20",
+    "gitlab_url": "https://gitlab.com/surendaer/surendra-observability",
+    "tags": ["sre", "kubernetes", "aws"]
+  }
+]

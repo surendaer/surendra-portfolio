@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+{% block meta_description %}{{ post.summary }}{% endblock %}
+
+{% block content %}
+<article>
+  <header>
+    <hgroup>
+      <h1>{{ post.title }}</h1>
+      <p>{{ post.date }} &middot; <a href="{{ root }}blog/index.html">&larr; Back to Blog</a></p>
+    </hgroup>
+  </header>
+  <section>
+    {{ post.content_html | safe }}
+  </section>
+</article>
+{% endblock %}

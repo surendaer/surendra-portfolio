@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cs.title }}{% endblock %}
+{% block meta_description %}{{ cs.summary }}{% endblock %}
+
+{% block head %}
+{% if cs.architecture_diagram %}
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" style="margin-bottom:1.5rem; font-size:0.85rem;">
+  <a href="{{ root }}work/index.html">&larr; Work / ADRs</a>
+</nav>
+
+<hgroup>
+  <h1>{{ cs.title }}</h1>
+  <p>{{ cs.subtitle }}</p>
+</hgroup>
+
+<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+  {% for tag in cs.tags %}
+  <span class="tag {{ tag }}">{{ tag }}</span>
+  {% endfor %}
+  <span style="color:var(--pico-muted-color); font-size:0.85rem; align-self:center;">&middot; {{ cs.period }} &middot; {{ cs.company }}</span>
+</div>
+
+<hr>
+
+<!-- Results / Impact metrics — shown first so recruiters see the value immediately -->
+<section>
+  <h2>Impact</h2>
+  <div class="grid">
+    {% for result in cs.results %}
+    <article style="text-align:center; padding:1.5rem 1rem;">
+      <strong style="font-size:1.6rem; color:var(--pico-primary); display:block;">{{ result.metric }}</strong>
+      <small style="color:var(--pico-muted-color);">{{ result.label }}</small>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<hr>
+
+<!-- Context -->
+<section>
+  <h2>Context</h2>
+  <p>{{ cs.context }}</p>
+</section>
+
+<!-- Problem -->
+<section>
+  <h2>The Problem</h2>
+  <p>{{ cs.problem.statement }}</p>
+  <ul>
+    {% for point in cs.problem.pain_points %}
+    <li>{{ point }}</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<!-- Solution -->
+<section>
+  <h2>The Solution</h2>
+  <p>{{ cs.solution.approach }}</p>
+  <ol>
+    {% for step in cs.solution.steps %}
+    <li>{{ step }}</li>
+    {% endfor %}
+  </ol>
+</section>
+
+<!-- Architecture Diagram -->
+{% if cs.architecture_diagram %}
+<section>
+  <h2>Architecture</h2>
+  <pre class="mermaid">{{ cs.architecture_diagram }}</pre>
+</section>
+{% endif %}
+
+<!-- Tech Stack -->
+<section>
+  <h2>Tech Stack</h2>
+  <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+    {% for tech in cs.tech_stack %}
+    <span class="tag">{{ tech }}</span>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Lessons Learned -->
+<section>
+  <h2>Lessons Learned</h2>
+  <ul>
+    {% for lesson in cs.lessons %}
+    <li style="margin-bottom:0.75rem;">{{ lesson }}</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<hr>
+
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <a href="{{ root }}work/index.html">&larr; Back to Work / ADRs</a>
+  <a href="{{ root }}resume/index.html" role="button" class="outline">View Full Resume</a>
+</div>
+{% endblock %}

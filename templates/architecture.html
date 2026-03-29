@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Architecture{% endblock %}
+{% block meta_description %}System architecture and engineering decisions behind thesurendra.com.{% endblock %}
+
+{% block head %}
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+{% endblock %}
+
+{% block content %}
+<hgroup>
+  <h1>Architecture</h1>
+  <p>How this platform is built, deployed, and kept up to date.</p>
+</hgroup>
+
+<section>
+  <h2>System Diagram</h2>
+  <pre class="mermaid">
+flowchart LR
+    S[RSS Feeds\n5 sources] --> B[build.py\nPython 3.11]
+    D[data/\nprojects.json\nresume.json] --> B
+    B --> P[public/\nGenerated HTML]
+    P --> GL[GitLab CI\npages job]
+    GL --> GP[GitLab Pages]
+    GP --> U[Browser\nwww.thesurendra.com]
+    SCHED[GitLab Scheduler\nDaily 06:00 UTC] --> GL
+  </pre>
+</section>
+
+<hr>
+
+<section>
+  <h2>Architecture Decision Records</h2>
+
+  <article>
+    <header><strong>ADR-001 — Static Hosting: GitLab Pages over Vercel / Netlify / AWS</strong></header>
+    <dl>
+      <dt>Status</dt><dd>Accepted</dd>
+      <dt>Context</dt>
+      <dd>Need a publicly accessible URL at $0 cost. No server budget. Must be verifiable by recruiters without any login.</dd>
+      <dt>Decision</dt>
+      <dd>Use GitLab Pages. The <code>pages</code> CI job uploads a <code>public/</code> artifact — that's the entire deployment model.</dd>
+      <dt>Consequences</dt>
+      <dd>No cold starts. No runtime server. Deploy is atomic. GitLab provides free Let's Encrypt TLS for custom domains.</dd>
+      <dt>Alternatives considered</dt>
+      <dd>Vercel (requires account), Netlify (build limits), AWS S3+CloudFront (cost + complexity).</dd>
+    </dl>
+  </article>
+
+  <article>
+    <header><strong>ADR-002 — Python + Jinja2 over Next.js</strong></header>
+    <dl>
+      <dt>Status</dt><dd>Accepted</dd>
+      <dt>Context</dt>
+      <dd>Need to generate a static site with scraped data. Options: Next.js (SSG), Hugo, Jekyll, or Python.</dd>
+      <dt>Decision</dt>
+      <dd>Python + Jinja2. One entry point: <code>python build.py</code>. No npm, no node_modules, no webpack.</dd>
+      <dt>Consequences</dt>
+      <dd>Fastest debug loop. CI image is <code>python:3.11-slim</code>. Any change is: edit Python → rerun script → see result.</dd>
+      <dt>Alternatives considered</dt>
+      <dd>Next.js (npm dependency chain), Hugo (Go templating learning curve), Jekyll (Ruby runtime).</dd>
+    </dl>
+  </article>
+</section>
+
+{% if video_url %}
+<hr>
+<section>
+  <h2>Build Walkthrough Video</h2>
+  <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden;">
+    <iframe
+      src="{{ video_url }}"
+      style="position:absolute; top:0; left:0; width:100%; height:100%;"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

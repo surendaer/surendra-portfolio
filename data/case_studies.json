@@ -1,0 +1,248 @@
+[
+  {
+    "slug": "65k-downloads-per-minute",
+    "title": "65,000 Downloads Per Minute",
+    "subtitle": "Architecting a global CI/CD artifact platform for 20,000+ engineers at Walmart",
+    "company": "Walmart",
+    "period": "2022 – 2024",
+    "tags": ["platform", "aws", "devops", "kubernetes"],
+    "featured": true,
+    "summary": "Scaled Walmart's CI/CD artifact platform to handle 65,000+ downloads per minute by introducing global edge distribution across AWS, Azure, and GCP. Reduced build and deployment latency by ~60% for 20,000+ engineers worldwide.",
+    "context": "Walmart's engineering org had grown to over 20,000 engineers across the US, UK, and Canada. The artifact platform — the backbone of every build pipeline — was struggling under load. Build latency was climbing, regional failures were causing global cascading issues, and the platform had no edge distribution strategy. Every engineer in every region was hitting the same central artifact repositories.",
+    "problem": {
+      "statement": "A single-region artifact platform serving 20,000+ engineers globally caused high build latency, regional blast radius on failures, and no ability to scale independently per region.",
+      "pain_points": [
+        "All 20,000+ engineers pulling artifacts from a centralised store — no regional caching",
+        "Peak load caused download queuing, slowing CI pipelines globally",
+        "A regional outage in one zone degraded build capability for all engineers worldwide",
+        "No SLOs on artifact availability — no visibility into user-facing impact",
+        "Artifact platform scaling was manual, reactive, and always behind growth"
+      ]
+    },
+    "solution": {
+      "approach": "Designed and deployed a global edge distribution architecture across three cloud providers and three regions. Each region gets a local artifact cache with replication from the source of truth. Engineers pull from their nearest edge node.",
+      "steps": [
+        "Mapped artifact request patterns per region to size edge node capacity correctly",
+        "Deployed regional artifact edge nodes on AWS (US), Azure (UK), GCP (CA) with replication pipelines from the primary store",
+        "Implemented regional caching strategies with cache-aside patterns and TTL tuning per artifact type",
+        "Introduced health-check-based failover routing — if a regional edge fails, traffic falls back to the nearest healthy node, not the central store",
+        "Defined SLOs on artifact availability and download latency per region; built Grafana dashboards tracking p50/p95/p99 per edge node",
+        "Automated scaling policies for edge nodes tied to pipeline queue depth metrics"
+      ]
+    },
+    "architecture_diagram": "flowchart LR\n    Eng1[Engineers US] --> EdgeUS[Edge Node\nAWS US-East]\n    Eng2[Engineers UK] --> EdgeUK[Edge Node\nAzure UK-South]\n    Eng3[Engineers CA] --> EdgeCA[Edge Node\nGCP CA-Central]\n    EdgeUS & EdgeUK & EdgeCA -->|replication| Primary[Primary Artifact Store]\n    Primary --> Monitor[Prometheus + Grafana\nSLO Dashboards]",
+    "tech_stack": ["AWS", "Azure", "GCP", "JFrog Artifactory", "Kubernetes (EKS/AKS/GKE)", "Prometheus", "Grafana", "Terraform", "Helm"],
+    "results": [
+      { "metric": "65,000+", "label": "Artifact downloads per minute at peak" },
+      { "metric": "~60%",    "label": "Reduction in build and deployment latency" },
+      { "metric": "20,000+", "label": "Engineers served globally" },
+      { "metric": "3",       "label": "Cloud providers with regional edge nodes (AWS, Azure, GCP)" },
+      { "metric": "0",       "label": "Global cascading failures from single-region outages" }
+    ],
+    "lessons": [
+      "Cache TTL tuning per artifact type was critical — library dependencies (stable, long TTL) vs. internal build outputs (volatile, short TTL) needed completely different policies.",
+      "Sizing edge nodes from real request pattern data (not estimates) prevented both over-provisioning and under-provisioning at launch.",
+      "Defining SLOs before building dashboards meant we were measuring what actually mattered to engineers, not just what was easy to instrument.",
+      "Health-check-based failover made the system self-healing — regional degradation became invisible to engineers rather than an incident trigger."
+    ]
+  },
+  {
+    "slug": "rto-4-hours-to-7-minutes",
+    "title": "Distributed ArgoCD GitOps CD at Walmart Scale",
+    "subtitle": "ArgoCD as a Service — GitOps platform, cross-region DR automation, and a live v2.9→v2.13 upgrade across Walmart's Kubernetes fleet",
+    "company": "Walmart",
+    "period": "2022 – 2025",
+    "tags": ["gitops", "kubernetes", "platform", "devops"],
+    "featured": true,
+    "summary": "Owned ArgoCD as a managed internal platform for Walmart's Kubernetes fleet — serving 20,000+ engineers across multi-tenant, multi-region clusters. Delivered three compounding outcomes: (1) GitOps migration eliminating configuration drift; (2) automated cross-region DR reducing RTO from ~4 hours to ~7 minutes; (3) a zero-downtime ArgoCD upgrade from v2.9 to v2.13 — navigating five breaking changes across multi-tenant and single-tenant cluster topologies.",
+    "context": "Walmart's platform engineering team operated ArgoCD as an internal managed service across a large Kubernetes fleet on AKS and EKS. The platform spanned multiple ArgoCD namespaces — handling different tenant classes, add-on management, and application delivery for thousands of engineers. Configuration was managed imperatively via patching scripts, disaster recovery relied on manual runbooks, and the platform was running on an aging ArgoCD version accumulating technical debt across three major releases.",
+    "problem": {
+      "statement": "Three compounding problems: (1) imperative configuration management causing drift across clusters; (2) a 4-hour manual DR process unacceptable for a platform-critical service; (3) an overdue multi-version ArgoCD upgrade with five breaking changes that could not cause downtime for 20,000+ engineers.",
+      "pain_points": [
+        "Jenkins and ArgoCD configuration managed via ad-hoc patch scripts — clusters diverged silently over time with no drift detection",
+        "Disaster recovery required manual runbook execution: ~4 hours average RTO for critical workloads, with no cross-region automation",
+        "ArgoCD controller hotspots under high application load — single controllers becoming reconciliation bottlenecks with no auto-scaling",
+        "Multi-tenant ArgoCD topology (separate namespaces per tenant class) made upgrades non-trivial — each class needed individual validation",
+        "Velero backup/restore had a silent data loss bug: AppProjects with a deletionTimestamp were silently excluded from backups, leaving the restore broken for 100+ applications",
+        "Stuck Kubernetes finalizers during failback operations — Applications, ApplicationSets, and AppProjects hanging in Terminating state with no automated resolution",
+        "ArgoCD v2.9→v2.13 introduced five breaking changes: kubectl client-side→server-side apply, Redis HA image registry change (DockerHub→ECR), cluster secret project scoping, ApplicationSet server-side apply field ownership, and Helm version bump (3.13→3.15)"
+      ]
+    },
+    "solution": {
+      "approach": "Three parallel workstreams executed sequentially in order of risk: (1) GitOps model migration using CASC and ApplicationSets as the foundation; (2) automated BCDR using Velero with a custom Ansible-Helm restore orchestrator; (3) a carefully staged ArgoCD upgrade from v2.9 to v2.13 across multi-tenant and single-tenant cluster topologies, with breaking-change mitigations applied before each version jump.",
+      "steps": [
+        "Defined the target GitOps model: all Jenkins configuration via Configuration as Code (CASC) stored in Git, all ArgoCD Application and ApplicationSet resources declared declaratively — eliminating ad-hoc patching as the change mechanism",
+        "Introduced round-robin controller sharding to distribute reconciliation load and eliminate hotspots; configured Horizontal Pod Autoscaler on ArgoCD controller pods tied to application count and reconciliation queue depth",
+        "Designed cross-region BCDR: Velero backup every 15 minutes targeting all ArgoCD namespaces (applications, applicationsets, appprojects, cluster secrets) with storage in a secondary region",
+        "Discovered and fixed the AppProject deletionTimestamp backup exclusion bug — pre-backup validation now checks for and recreates clean AppProject resources before every backup cycle",
+        "Wrote enhanced Ansible roles for cross-region restore with correct resource ordering (Applications → ApplicationSets → AppProjects), configurable retry logic (3 attempts, 600s timeout), automated finalizer clearing for stuck resources, and post-restore sync validation against expected application counts",
+        "Built automated BCDR validation scripts: pre-failover checklist, post-restore health check (application count diff, sync status distribution, cluster secret count), and emergency fix automation for Unknown-status applications",
+        "Validated RTO target with chaos engineering drills — deliberately failing the primary cluster and timing full recovery end-to-end; iterated on restore script until 7-minute target was consistently achieved",
+        "Executed ArgoCD v2.9→v2.13 upgrade in stages: assessed all five breaking changes per version; applied mitigations (ECR registry allowlist for Redis HA, cluster secret project field cleanup, server-side apply migration guide) before each version bump; ran validation suite post-upgrade per tenant class; completed multi-tenant upgrade list (100+ clusters) before single-tenant rollout"
+      ]
+    },
+    "architecture_diagram": "flowchart TD\n    Git[Git — Source of Truth\nCASC · ApplicationSets · AppProjects] -->|reconcile every 3min| Argo\n\n    subgraph Argo[ArgoCD — Multi-Tenant Platform]\n      direction LR\n      C1[Shard 0\nController] & C2[Shard 1\nController] & C3[Shard 2\nController]\n    end\n\n    Argo -->|deploy| PrimaryRegion\n\n    subgraph PrimaryRegion[Primary Region — AKS / EKS Clusters]\n      direction LR\n      ns1[argocd\ncore tenant] & ns2[argocd-spark\nspark tenant] & ns3[platform\nadd-ons]\n    end\n\n    PrimaryRegion -->|Velero backup every 15min| S3[Object Storage\nSecondary Region]\n\n    S3 -->|restore trigger| Restore[Ansible-Helm\nRestore Orchestrator]\n    Restore -->|1. clear finalizers\n2. delete stale resources\n3. velero restore\n4. validate sync| DRRegion[DR Region\nAKS / EKS Clusters]",
+    "tech_stack": ["ArgoCD v2.9–v2.13", "Jenkins CASC", "Kubernetes (EKS, AKS)", "Velero", "Ansible", "Helm", "ApplicationSets", "Prometheus", "Grafana", "Terraform", "Python"],
+    "results": [
+      { "metric": "4 hrs → 7 min", "label": "RTO for cross-region ArgoCD and Kubernetes workload recovery" },
+      { "metric": "v2.9 → v2.13",  "label": "Zero-downtime ArgoCD upgrade across multi-tenant and single-tenant clusters" },
+      { "metric": "100+",           "label": "Applications and ApplicationSets validated through DR failover" },
+      { "metric": "0",              "label": "Configuration drift incidents after GitOps model migration" },
+      { "metric": "5",              "label": "Breaking changes navigated across the upgrade path without platform downtime" },
+      { "metric": "90%",            "label": "Reduction in manual intervention for stuck finalizers via automated ordering and retry" }
+    ],
+    "lessons": [
+      "The most dangerous Velero bugs are silent ones — the AppProject deletionTimestamp exclusion caused restores to silently succeed but leave 100+ applications in Unknown status. Pre-backup validation that explicitly checks for this condition is now mandatory.",
+      "Resource deletion ordering matters more than the deletion itself during ArgoCD failback: Applications must be deleted before ApplicationSets, and AppProjects last. Get this wrong and finalizers create circular blocking. Encode the ordering in automation, never in runbooks.",
+      "Round-robin controller sharding is not set-and-forget — shard count is a function of application count growth. Size it for 18 months ahead, not today, or you'll be resharding under load.",
+      "ArgoCD upgrade breaking changes compound across versions. A jump from v2.9 to v2.13 skipping assessment means you're absorbing five independent breaking changes simultaneously. Stage each version, validate per tenant class, apply mitigations before the jump — never after.",
+      "Chaos engineering drills are the only honest RTO measurement. A runbook walkthrough that takes 45 minutes on a whiteboard will take 4 hours in production at 3am. Run the drill under realistic conditions or the RTO number is fiction.",
+      "GitOps only works when CASC is the mutation path, not the backup path. If engineers can still apply changes imperatively, drift will return — the process change is the hard part, not the tooling."
+    ]
+  },
+  {
+    "slug": "pipeline-doctor-distributed-ci",
+    "title": "Distributed CI + Pipeline Doctor at Walmart Scale",
+    "subtitle": "An AI agent that detects, diagnoses, and fixes distributed CI/CD pipeline failures autonomously — and raises the PR",
+    "company": "Walmart",
+    "period": "2023 – Present",
+    "tags": ["ai", "devops", "platform", "kubernetes"],
+    "featured": true,
+    "summary": "Built Pipeline Doctor — an AI-powered orchestration system that hooks into GitHub Actions, GitLab CI, and Jenkins via webhooks, uses GPT-4 to analyse pipeline failures, generates context-aware code fixes, and automatically raises a Pull Request with the fix and a plain-English explanation. Reduced mean time to fix from 30–60 minutes to under 3 minutes. Won Hackathon Runner-up at Walmart's internal Prompt-a-thon 2025.",
+    "context": "At Walmart's scale — 20,000+ engineers, hundreds of CI pipelines — build failures are a constant drain. The median time from failure notification to fix commit was 30–60 minutes: a developer had to be paged, read logs, reproduce the issue, write a fix, get it reviewed. Night failures sat unfixed until the next morning. The team explored whether an LLM agent could close that loop autonomously without human intervention for a class of common, diagnosable failures.",
+    "problem": {
+      "statement": "CI/CD pipeline failures at scale consume a disproportionate share of senior engineering time. Common failures — dependency version mismatches, Dockerfile syntax errors, YAML config mistakes, test environment regressions — are diagnosable from logs alone. Yet every one required a human to investigate, context-switch, and fix manually.",
+      "pain_points": [
+        "30–60 minutes median time from failure alert to fix commit — engineers interrupted mid-task",
+        "Night and weekend failures sat unfixed until the next working day — compounding delays",
+        "Senior engineers spending time on mechanical triage instead of product delivery",
+        "No cross-platform visibility: failures spread across GitHub Actions, GitLab CI, and Jenkins with no unified signal",
+        "Fix quality was inconsistent — rushed fixes at 2am introduced regressions that compounded the original failure"
+      ]
+    },
+    "solution": {
+      "approach": "Designed and built a webhook-driven AI orchestration system: a Flask listener receives failure events from any CI platform, a Celery worker orchestrates the fix pipeline asynchronously, an AI core (GPT-4/Claude) analyses the error log and generates a validated fix, and a Git operations module clones the repo, applies the fix on a branch, and raises a PR with a human-readable explanation. Guardrails prevent the agent from applying fixes it cannot validate or that touch security-sensitive paths.",
+      "steps": [
+        "Designed the event intake layer: Flask webhook listener with HMAC signature verification for GitHub, GitLab, and Jenkins payloads — normalised to a unified internal schema regardless of source platform",
+        "Built asynchronous orchestration with Celery: each failure event is queued, deduplicated, and processed with configurable retry logic — the agent never blocks on a single slow LLM call",
+        "Wrote the AI analysis core: structured prompt passing the raw error log, file context, and recent commit diff to GPT-4; response schema enforces: root_cause, fix_description, code_changes (file → patch), confidence_score, safety_flags",
+        "Added fix validation before any Git operation: dangerous pattern detection (secret exposure, dependency downgrade below minimum version, test deletion), code style preservation checks, and a confidence threshold gate (only auto-apply if confidence > 0.75)",
+        "Built the Git operations module: repo clone, branch creation (fix/pipeline-doctor-{sha}), patch application, commit with AI-generated message, PR creation via GitHub/GitLab APIs with structured description (problem, root cause, fix applied, confidence)",
+        "Integrated a real-time dashboard (Java Spring Boot display component) for engineering leadership — showing fixes applied, PRs raised, time-saved metrics, and cases where the agent escalated rather than acting",
+        "Containerised the full system with Docker Compose, added Prometheus instrumentation on all agent actions, and authored GitHub Actions workflows to auto-trigger the agent on pipeline failure events"
+      ]
+    },
+    "architecture_diagram": "flowchart TD\n    GHA[GitHub Actions\nFailure Event] & GL[GitLab CI\nFailure Event] & JK[Jenkins\nFailure Event] -->|HMAC-verified webhook| Flask[Flask\nWebhook Listener]\n    Flask -->|enqueue| Celery[Celery Worker\nOrchestrator]\n    Celery -->|error log + file context| LLM[GPT-4 / Claude\nAI Analysis Core]\n    LLM -->|structured JSON\nroot_cause · fix · confidence| Validate{Confidence ≥ 0.75\n+ Safety Check}\n    Validate -->|pass| Git[Git Operations\nclone → patch → commit]\n    Validate -->|fail| Escalate[Escalate to\nOn-Call Engineer]\n    Git -->|PR raised| PR[Pull Request\nwith Explanation]\n    Celery --> Prom[Prometheus\nMetrics]\n    Prom --> Dash[Dashboard\nTime Saved · PRs Raised]",
+    "tech_stack": ["Python 3.11", "Flask", "Celery", "GPT-4 / Claude", "GitHub Actions", "GitLab CI", "Jenkins", "Docker", "Prometheus", "Java (Spring Boot)", "Redis", "GitHub API", "GitLab API"],
+    "results": [
+      { "metric": "< 3 min",     "label": "Mean time to fix for auto-resolved pipeline failures (was 30–60 min)" },
+      { "metric": "95%",         "label": "Faster error resolution for the failure classes the agent handles" },
+      { "metric": "Runner-up",   "label": "Walmart internal Prompt-a-thon 2025 — AI-powered CI remediation" },
+      { "metric": "3",           "label": "CI platforms integrated via unified webhook interface (GitHub, GitLab, Jenkins)" },
+      { "metric": "0.75+",       "label": "Confidence threshold gate — agent escalates rather than guessing" },
+      { "metric": "$7.7k/dev",   "label": "Estimated annual productivity saving per developer (pipeline interruptions eliminated)" }
+    ],
+    "lessons": [
+      "The hardest part of an LLM agent in production is not the LLM — it's knowing when not to act. A confidence threshold and a safety flag checklist were more valuable than prompt engineering improvements for preventing regressions.",
+      "HMAC webhook verification sounds like a detail but is load-bearing at scale — without it, anyone who can guess your endpoint can trigger the agent against arbitrary repos.",
+      "Asynchronous orchestration (Celery) was essential from day one. Synchronous LLM calls in a webhook handler meant the first slow GPT-4 response blocked the entire event queue. The queue model also enabled retry without re-receiving the event.",
+      "The PR description quality determined adoption. Engineers would reject agent PRs with opaque commit messages. Once the PR included: problem statement, root cause, exact change made, and confidence score — review acceptance rates climbed significantly.",
+      "Escalation paths are not failure modes — they are features. The agent declining to act on a low-confidence failure and paging the on-call engineer is the correct behaviour, not a gap. Frame it as such in the dashboard."
+    ]
+  },
+  {
+    "slug": "encoding-ops-into-the-platform",
+    "title": "Encoding Ops Into the Platform",
+    "subtitle": "Building a Level-3 OpenShift Kubernetes Operator to eliminate manual AEM operational toil at a global digital experience client",
+    "company": "IBM (Digital Experience Client)",
+    "period": "2020 – 2021",
+    "tags": ["kubernetes", "platform", "devops", "aws"],
+    "featured": true,
+    "summary": "Designed and built a Level-3 OpenShift Kubernetes Operator that encoded a global digital experience platform's full AEM operational lifecycle — deployment, scaling, configuration, backup and recovery — directly into the platform. Eliminated repeated manual interventions and drove a ~40% reduction in non-production cloud costs.",
+    "context": "A global digital experience client's AEM (Adobe Experience Manager) delivery platform was managed through centralised operations teams at IBM. Deployment, scaling, configuration changes, and recovery from failures all required manual intervention from platform engineers. Development teams were raising tickets for operations that should have been self-service. The platform had no automation for on-demand environment provisioning, and non-production environments ran at full capacity 24/7.",
+    "problem": {
+      "statement": "AEM operational knowledge lived in engineers' heads and runbooks, not in the platform. Every deployment, scale event, and recovery action required manual intervention. Non-production environments were over-provisioned and idle most of the time.",
+      "pain_points": [
+        "Deployment, scaling, configuration, and recovery all required tickets to the central ops team",
+        "Operational knowledge existed as runbooks, not automation — single points of failure",
+        "Development teams blocked on environment requests, reducing delivery velocity",
+        "Non-production environments ran 24/7 at full size — massive idle cost",
+        "Environment-specific drift across dev, staging, and production caused inconsistent behaviour"
+      ]
+    },
+    "solution": {
+      "approach": "Built a Level-3 Kubernetes Operator (Full Lifecycle capability) that encodes AEM's entire operational lifecycle: CRDs for AEM instances, controllers handling deployment, scaling, configuration, backup and self-healing recovery. Delivered a Tekton automation pipeline for multi-region HA install/deploy with backup and restoration. Separately, introduced Terraform + Ansible for on-demand environment provisioning.",
+      "steps": [
+        "Collaborated with Adobe development and QA teams to document all operational knowledge — deployment procedures, scaling thresholds, configuration patterns, backup/restore procedures, and known failure modes",
+        "Designed CRDs representing AEM instances with spec fields covering all configurable operational parameters, providing knowledge transfer (KT) to Adobe developers and QA on Operator capabilities",
+        "Built Level-3 Operator controllers (Full Lifecycle) that reconcile desired AEM state with actual cluster state — handling initial install, rolling updates, scaling, backup, restoration, and failure recovery autonomously",
+        "Developed Tekton automation pipeline for AEM Operator install and deploy on single and multi-region OpenShift with HA configuration, backup and restoration capability",
+        "Deployed the Operator to Red Hat OpenShift on AWS and IBM Cloud (ROKS), establishing consistent lifecycle management and eliminating environment-specific drift",
+        "Implemented Terraform + Ansible automation for ROKS environment provisioning — dev and test environments created, updated, and torn down on-demand instead of via tickets",
+        "Implemented idle environment detection and automated scale-down with scheduled cleanup of unused resources"
+      ]
+    },
+    "architecture_diagram": "flowchart LR\n    Dev[Dev Team\nCRD Manifest] --> Oper[AEM Kubernetes Operator\nCRD Controller]\n    Oper -->|reconcile| AEM[AEM Instances\nOpenShift on AWS / IBM Cloud]\n    TF[Terraform + Ansible] -->|on-demand| Env[Dev / Test Environments\nROKS]\n    Env -->|idle detection| Scale[Auto Scale-Down\n+ Cleanup]\n    Oper --> Monitor[Observability\nPrometheus + Grafana]",
+    "tech_stack": ["Red Hat OpenShift", "Kubernetes Operators (Level-3)", "Tekton", "AWS", "IBM Cloud (ROKS)", "IBM Cloud COS", "Terraform", "Ansible", "Helm", "Python"],
+    "results": [
+      { "metric": "~40%",        "label": "Reduction in non-production cloud costs" },
+      { "metric": "Level-3",     "label": "Operator capability (Full Lifecycle — install, scale, backup, recover)" },
+      { "metric": "0 tickets",   "label": "Required for AEM deployment, scaling, and recovery" },
+      { "metric": "Multi-region","label": "HA deployment with Tekton pipeline + backup and restoration" },
+      { "metric": "On-demand",   "label": "Dev/Test environment provisioning (was ticket-driven)" }
+    ],
+    "lessons": [
+      "The hardest part of building an Operator isn't the code — it's extracting and encoding institutional knowledge from engineers who've never written it down.",
+      "CRD schema design is an API contract with development teams — getting it wrong early means breaking changes later. Spend the time upfront.",
+      "Idle environment cost reduction only works when the scale-down is automatic and not manual — teams will never scale down their own test environments voluntarily.",
+      "Running consistently on both AWS and IBM Cloud required strict abstraction — any cloud-specific logic in the Operator controller becomes a maintenance burden."
+    ]
+  },
+  {
+    "slug": "zero-downtime-for-fintech",
+    "title": "Zero Downtime for Fintech",
+    "subtitle": "Redesigning CI/CD for Westpac, Bendigo Bank and QBE Insurance with GitLab HA/DR",
+    "company": "IBM — Bendigo Bank, QBE Insurance, Westpac Bank",
+    "period": "2019 – 2020",
+    "tags": ["devops", "platform", "aws"],
+    "featured": false,
+    "summary": "Led the redesign of CI/CD operating models for three major Australian financial institutions. Delivered a GitLab HA/DR platform with standardised pipeline templates that enabled faster go-live cycles while meeting strict regulatory and availability requirements.",
+    "context": "Three major Australian fintech clients — Westpac Bank, Bendigo Bank, and QBE Insurance — were operating CI/CD ecosystems with systemic resilience and scalability gaps. Pipelines were bespoke per team, there were no standard templates, and the platforms lacked the high availability and disaster recovery posture required by financial services regulators.",
+    "problem": {
+      "statement": "Bespoke, fragile CI/CD pipelines across three major financial institutions with no HA/DR posture, no standardised templates, and no compliance with financial services operational resilience requirements.",
+      "pain_points": [
+        "No standardised CI/CD pipeline templates — every team owned a different configuration",
+        "GitLab instances were single points of failure with no HA or DR capability",
+        "DevOps Maturity Assessments revealed significant gaps in reliability, security, and automation",
+        "Regulatory requirements for operational resilience were not being met",
+        "Platform changes required extensive coordination — no self-service for teams"
+      ]
+    },
+    "solution": {
+      "approach": "Used DevOps Maturity Assessments to baseline each client, then designed and delivered GitLab HA/DR platforms with standardised pipeline templates. Balanced regulatory constraints with delivery velocity.",
+      "steps": [
+        "Conducted DevOps Maturity Assessments for each client, mapping gaps in reliability, security, automation, and CI/CD standardisation",
+        "Designed multi-cloud platform architectures (AWS, IBM Cloud, on-prem) tailored to each client's regulatory and operational constraints",
+        "Deployed GitLab in HA configuration with active-passive DR across availability zones",
+        "Authored standardised pipeline templates with embedded quality and security gates, adopted organisation-wide after comparative evaluation and resilience testing",
+        "Embedded DevSecOps principles: security scanning, secret detection, and compliance checks wired into every pipeline",
+        "Partnered with client engineering leadership to execute platform modernisation with zero disruption to live services"
+      ]
+    },
+    "architecture_diagram": "flowchart LR\n    Teams[Engineering Teams] --> GL[GitLab HA\nActive Node]\n    GL -->|replication| DR[GitLab DR\nPassive Node]\n    GL --> Pipe[Standardised Pipeline Templates\nQuality + Security Gates]\n    Pipe --> Deploy[Multi-Cloud Deploy\nAWS / IBM Cloud / On-Prem]\n    Deploy --> Reg[Regulatory Compliance\nAudit Trail]",
+    "tech_stack": ["GitLab (HA/DR)", "AWS (EC2, S3, EKS, RDS)", "IBM Cloud", "API Connect", "Terraform", "Ansible", "Docker", "Kubernetes", "DevSecOps"],
+    "results": [
+      { "metric": "3",          "label": "Major Australian financial institutions modernised" },
+      { "metric": "HA/DR",      "label": "GitLab platform with active-passive DR across AZs" },
+      { "metric": "100%",       "label": "Pipelines with embedded security and quality gates" },
+      { "metric": "0",          "label": "Business disruption during platform cutover" },
+      { "metric": "Org-wide",   "label": "Pipeline template adoption after evaluation and testing" }
+    ],
+    "lessons": [
+      "DevOps Maturity Assessments are the fastest way to build credibility with client leadership — they reveal the gap objectively, without blame.",
+      "HA/DR for GitLab in financial services is as much about documentation and runbooks as it is about the architecture — regulators want evidence of tested recovery procedures.",
+      "Standardised pipeline templates only get adopted if they're demonstrably better than what teams already have — the proof-of-concept and resilience testing phase was essential.",
+      "Zero-disruption cutover in a regulated environment requires months of parallel running, not a single switchover event."
+    ]
+  }
+]

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Resume{% endblock %}
+{% block meta_description %}Surendra Kumar AR — Senior SRE / Platform Engineer with 11 years experience. Walmart, Adobe, IBM. DevOps, Kubernetes, AWS, GitOps.{% endblock %}
+
+{% block content %}
+<hgroup>
+  <h1>{{ resume.name }}</h1>
+  <p>{{ resume.title }} &mdash; {{ resume.subtitle }}</p>
+</hgroup>
+
+<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+  {% for city in resume.cities %}
+  {% if city.active %}
+  <span>{{ city.city }}</span>
+  {% else %}
+  <span style="text-decoration:line-through; color:var(--pico-muted-color);">{{ city.city }}</span>
+  {% endif %}
+  {% if not loop.last %}<span style="color:var(--pico-muted-color);">&rarr;</span>{% endif %}
+  {% endfor %}
+  <span style="color:var(--pico-muted-color);">&middot; Targeting: {{ resume.targeting }}</span>
+</div>
+
+<div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:2rem;">
+  <a href="{{ resume.linkedin }}" target="_blank" rel="noopener" role="button" class="outline">LinkedIn</a>
+  <a href="{{ resume.gitlab }}"  target="_blank" rel="noopener" role="button" class="outline">GitLab</a>
+  <a href="{{ root }}static/resume.pdf" download role="button">Download PDF</a>
+</div>
+
+<section>
+  <h3>About</h3>
+  <p>{{ resume.bio }}</p>
+</section>
+
+<hr>
+
+<section>
+  <h3>Awards</h3>
+  <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+    {% for award in resume.awards %}
+    <article style="padding:0.6rem 1rem; margin:0; flex:0 0 auto;">
+      <strong style="font-size:0.9rem;">{{ award.name }}</strong><br>
+      <small style="color:var(--pico-muted-color);">{{ award.org }} &middot; {{ award.year }}</small>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<hr>
+
+<section>
+  <h3>Certifications</h3>
+  <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+    {% for cert in resume.certifications %}
+    <span class="tag">{{ cert.issuer }}: {{ cert.name }}</span>
+    {% endfor %}
+  </div>
+</section>
+
+<hr>
+
+<section>
+  <h3>Skills</h3>
+  {% for category, items in resume.skills.items() %}
+  <div style="margin-bottom:1rem;">
+    <small style="color:var(--pico-muted-color); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">{{ category }}</small>
+    <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.4rem;">
+      {% for skill in items %}
+      <span class="tag">{{ skill }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+
+<hr>
+
+<section>
+  <h3>Experience</h3>
+  {% for job in resume.experience %}
+  <article>
+    <header style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem;">
+      <div>
+        <strong>{{ job.role }}</strong>
+        {% if job.role_note %}<br><small style="color:var(--pico-muted-color);">{{ job.role_note }}</small>{% endif %}
+        <br><span>{{ job.company }}</span>
+        {% if job.clients %}
+        <br><small style="color:var(--pico-muted-color);">Clients: {{ job.clients | join(', ') }}</small>
+        {% endif %}
+      </div>
+      <div style="text-align:right;">
+        <small style="color:var(--pico-muted-color);">{{ job.period }}</small><br>
+        <small style="color:var(--pico-muted-color);">{{ job.location }}</small>
+      </div>
+    </header>
+    <ul style="margin-top:0.75rem;">
+      {% for bullet in job.bullets %}
+      <li>{{ bullet }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+  {% endfor %}
+</section>
+
+<hr>
+
+<section>
+  <h3>Education</h3>
+  {% for edu in resume.education %}
+  <div style="display:flex; justify-content:space-between; flex-wrap:wrap; margin-bottom:0.5rem;">
+    <div>
+      <strong>{{ edu.degree }}</strong><br>
+      <small>{{ edu.institution }}</small>
+    </div>
+    <small style="color:var(--pico-muted-color);">{{ edu.period }}</small>
+  </div>
+  {% endfor %}
+</section>
+
+<hr>
+
+<section>
+  <h3>Full Resume (PDF)</h3>
+  <p>
+    <a href="{{ root }}static/resume.pdf" download role="button">Download PDF &darr;</a>
+  </p>
+</section>
+{% endblock %}

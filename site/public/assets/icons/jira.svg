@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="jg1" x1="94%" y1="6%" x2="44%" y2="52%">
+      <stop offset="18%" stop-color="#0052CC"/>
+      <stop offset="100%" stop-color="#2684FF"/>
+    </linearGradient>
+    <linearGradient id="jg2" x1="6%" y1="94%" x2="56%" y2="48%">
+      <stop offset="18%" stop-color="#0052CC"/>
+      <stop offset="100%" stop-color="#2684FF"/>
+    </linearGradient>
+  </defs>
+  <!-- Upper arrow (top-right boomerang) -->
+  <path d="M15.98 1.18 C15.98 1.18 8.5 8.66 8.5 16 L15.98 16 C15.98 12.37 18.99 9.36 22.62 9.36 L29.22 9.36 C27.1 4.57 21.87 1.18 15.98 1.18Z" fill="url(#jg1)"/>
+  <!-- Lower arrow (bottom-left boomerang) -->
+  <path d="M16.02 30.82 C16.02 30.82 23.5 23.34 23.5 16 L16.02 16 C16.02 19.63 13.01 22.64 9.38 22.64 L2.78 22.64 C4.9 27.43 10.13 30.82 16.02 30.82Z" fill="url(#jg2)"/>
+</svg>

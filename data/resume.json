@@ -1,0 +1,125 @@
+{
+  "name": "Surendra Kumar AR",
+  "title": "GenAI / ML Infra Architect · Platform Engineering · DevOps & SRE",
+  "subtitle": "11 years building platforms at scale — Walmart, Adobe, IBM — now specialising in GenAI & ML infrastructure",
+  "years_experience": 11,
+  "location": "Bangalore, India",
+  "targeting": "Dubai, UAE — GenAI / ML Infra Architect, Staff Platform Engineer roles",
+  "email": "surendaer@gmail.com",
+  "linkedin": "https://linkedin.com/in/surendra-kumar-ar",
+  "gitlab": "https://gitlab.com/surendaer",
+  "bio": "GenAI / ML Infrastructure Architect and Platform Engineer with 11 years of experience building and operating large-scale platforms for global enterprises. Currently leading CI/CD and Developer Experience at Walmart (20,000+ engineers). Applying a deep platform engineering and SRE foundation to GenAI and ML infrastructure — MLOps pipelines, model serving, AI-powered operations, and multi-cloud ML platform architecture.",
+  "cities": [
+    { "city": "Bangalore", "active": true },
+    { "city": "Sydney", "active": false },
+    { "city": "Melbourne", "active": false }
+  ],
+  "skills": {
+    "Platform & Cloud": [
+      "AWS", "Azure", "GCP", "IBM Cloud",
+      "Multi-Hybrid-Cloud Architecture",
+      "EKS", "AKS", "GKE", "OpenShift"
+    ],
+    "Platform Engineering & CI/CD": [
+      "CI/CD Platform Architecture", "GitOps", "Jenkins",
+      "GitLab CI", "ArgoCD", "Tekton", "Helm",
+      "JFrog Artifactory", "Nexus", "Developer Experience (DevEx)"
+    ],
+    "Reliability, Security & Operations": [
+      "Site Reliability Engineering (SRE)", "Incident Command",
+      "Prometheus", "Grafana", "Splunk", "New Relic",
+      "Policy-as-Code", "Image Signing", "Vulnerability Scanning",
+      "HashiCorp Vault", "Sonarqube", "BCDR", "RTO / RPO"
+    ],
+    "Infrastructure Automation & MLOps": [
+      "Terraform", "Ansible", "Kubernetes Operators (Level-3)",
+      "Tekton", "MLOps Platform Enablement", "Autoscaling",
+      "Cost Optimization", "Python", "Bash"
+    ],
+    "Networking & Data": [
+      "HA Proxy", "Nginx", "Citrix NetScaler",
+      "IBM DB2", "MySQL", "MongoDB", "PostgreSQL"
+    ]
+  },
+  "certifications": [
+    { "name": "SysOps Administrator",       "issuer": "AWS",       "badge": "aws" },
+    { "name": "Administrator Associate",     "issuer": "Microsoft", "badge": "azure" },
+    { "name": "DevOps Engineer Expert",      "issuer": "Microsoft", "badge": "azure" },
+    { "name": "Professional Cloud Architect","issuer": "Google",    "badge": "gcp" },
+    { "name": "Professional DevOps Engineer","issuer": "Google",    "badge": "gcp" }
+  ],
+  "awards": [
+    { "name": "Hackathon Runner-up",    "org": "Walmart", "year": "2025" },
+    { "name": "Prompt-a-thon Runner-up","org": "Walmart", "year": "2025" },
+    { "name": "Spotlight Award",        "org": "Walmart", "year": "2024" },
+    { "name": "Bravo Award",            "org": "Walmart", "year": "2021 – 2024" },
+    { "name": "Spark Award",            "org": "IBM",     "year": "2017" },
+    { "name": "Manager's Choice Award", "org": "IBM",     "year": "2016 – 2020" }
+  ],
+  "experience": [
+    {
+      "company": "Walmart",
+      "role": "Senior Site Reliability Engineer",
+      "role_note": "Platform Engineering Lead — DevOps & DevEx",
+      "location": "Bangalore, India",
+      "period": "Oct 2021 – Present",
+      "bullets": [
+        "Owned the DevOps and Developer Experience platform for 20,000+ engineers globally across CI/CD, artifact management, observability, and security guardrails on AWS, Azure, GCP and On-Prem",
+        "Architected CI/CD systems handling 65,000+ artifact downloads per minute with global edge distribution (AWS, Azure, GCP — US, UK, CA) reducing build and deployment latency by ~60%",
+        "Re-architected Jenkins and ArgoCD from imperative patching to a fully GitOps declarative model with round-robin controller sharding, Auto-Scalar, and CASC — eliminating configuration drift",
+        "Automated disaster recovery for EKS, AKS and ArgoCD using Velero + Ansible-Helm, reducing RTO from ~4 hours to ~7 minutes for critical workloads",
+        "Served as Incident Commander for high-severity CI/CD platform incidents; built AI-powered CI remediation reducing recurring incident classes and on-call load",
+        "Achieved ~35% infrastructure cost reduction through autoscaling, node right-sizing, and idle environment scale-down across EKS, AKS, GKE without SLA impact"
+      ]
+    },
+    {
+      "company": "Adobe – IBM",
+      "role": "DevOps Architect",
+      "location": "Bangalore, India",
+      "period": "Nov 2020 – Oct 2021",
+      "bullets": [
+        "Owned modernisation of Adobe's AEM delivery platform via an OpenShift-based AEM Kubernetes Operator, encoding operational knowledge directly into the platform",
+        "Designed Kubernetes-first CI/CD architecture on Red Hat OpenShift on AWS and IBM Cloud for AEM workloads, eliminating environment-specific drift",
+        "Introduced on-demand environment provisioning with Terraform and Ansible for ROKS, replacing ticket-driven workflows with self-service automation",
+        "Drove ~40% reduction in non-production cloud costs through provisioning standardisation, right-sizing, and automated cleanup of idle environments"
+      ]
+    },
+    {
+      "company": "IBM — Bendigo Bank, QBE Insurance, Westpac Bank",
+      "role": "Lead DevOps Consultant (Platform Engineering)",
+      "location": "Sydney & Melbourne, Australia",
+      "period": "Jan 2019 – Oct 2020",
+      "bullets": [
+        "Led DevX and XOps platform transformation for large fintech clients across CI/CD, Cloud, and Kubernetes modernisation using DevOps Maturity Assessments",
+        "Identified systemic resilience gaps in Westpac & Bendigo Bank CI/CD ecosystems and led redesign — delivering a GitLab HA/DR platform with standardised pipeline templates",
+        "Designed multi-cloud platform architectures (AWS, IBM Cloud, on-prem) balancing regulatory constraints, delivery velocity, and operational resilience with DevSecOps principles",
+        "Partnered with client engineering leadership to execute platform modernisation with zero disruption to business continuity"
+      ]
+    },
+    {
+      "company": "IBM Global Business Services",
+      "role": "Senior DevOps Engineer",
+      "location": "India",
+      "period": "Jul 2015 – Dec 2018",
+      "clients": ["American Express", "Bank of Cyprus", "Etihad Airways", "Marriott International"],
+      "bullets": [
+        "Designed and scaled enterprise CI/CD platforms across hybrid cloud environments for regulated clients in financial services, aviation, and hospitality",
+        "Built reusable automation frameworks and self-service templates enabling 400+ teams to self-onboard applications at scale",
+        "Led container and Kubernetes platform adoption establishing lifecycle management, deployment standards, and operational guardrails",
+        "Integrated enterprise-grade security controls — IAM, RBAC, directory integrations, certificate management, and compliance guardrails"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Master of Technology (M. Tech)",
+      "institution": "Anna University, Chennai",
+      "period": "2013 – 2015"
+    },
+    {
+      "degree": "Bachelor of Technology (B. Tech)",
+      "institution": "Kalasalingam University, Srivilliputhur",
+      "period": "2009 – 2013"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section>
+  <hgroup>
+    <h1>Hi, I'm Surendra 👋</h1>
+    <p>GenAI / ML Infra Architect &middot; Platform Engineering &middot; DevOps &amp; SRE &mdash; Bangalore &rarr; Dubai</p>
+  </hgroup>
+  <p>
+    11 years building platforms at scale — Walmart (20,000+ engineers), Adobe, IBM.
+    Deep roots in Platform Engineering, DevOps and SRE.
+    Now specialising in GenAI and ML infrastructure: MLOps pipelines, model serving, and AI-powered operations.
+  </p>
+  <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:1.5rem;">
+    <a href="{{ root }}work/index.html" role="button">Work &amp; ADRs</a>
+    <a href="{{ root }}projects/index.html" role="button" class="secondary">Projects</a>
+    <a href="{{ root }}resume/index.html" role="button" class="outline">Resume</a>
+  </div>
+</section>
+
+<hr>
+
+<section>
+  <h2>Stats</h2>
+  <div class="grid">
+    <article>
+      <hgroup>
+        <h3>{{ stats.projects }}</h3>
+        <p>Public Projects</p>
+      </hgroup>
+    </article>
+    <article>
+      <hgroup>
+        <h3>{{ stats.articles_per_day }}</h3>
+        <p>Articles Scraped / Day</p>
+      </hgroup>
+    </article>
+    <article>
+      <hgroup>
+        <h3>{{ stats.years_exp }}+</h3>
+        <p>Years Experience</p>
+      </hgroup>
+    </article>
+    <article>
+      <hgroup>
+        <h3>{{ stats.certifications }}</h3>
+        <p>Certifications</p>
+      </hgroup>
+    </article>
+  </div>
+</section>
+
+<hr>
+
+<section>
+  <h2>Focus Areas</h2>
+  <div class="grid">
+    <article>
+      <h4>GenAI &amp; ML Infrastructure</h4>
+      <p>MLOps pipelines, model serving, AI-powered operations, GenAI platform architecture on AWS, Azure, GCP.</p>
+    </article>
+    <article>
+      <h4>Platform Engineering</h4>
+      <p>Kubernetes (EKS, AKS, GKE), ArgoCD, GitOps, Kubernetes Operators (Level-3), Developer Experience at scale.</p>
+    </article>
+    <article>
+      <h4>SRE &amp; Cloud Operations</h4>
+      <p>SLOs, error budgets, incident command, BCDR, cost optimisation — operating at 20,000+ engineer scale.</p>
+    </article>
+  </div>
+</section>
+{% endblock %}

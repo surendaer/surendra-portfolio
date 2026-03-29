@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Blog{% endblock %}
+{% block meta_description %}Engineering blog by Surendra — platform engineering, SRE, DevOps deep-dives.{% endblock %}
+
+{% block content %}
+<hgroup>
+  <h1>Blog</h1>
+  <p>Engineering deep-dives, build diaries, and decision records.</p>
+</hgroup>
+
+{% if not posts %}
+<p><em>First post coming soon.</em></p>
+{% else %}
+{% for post in posts %}
+<article>
+  <header>
+    <small style="color:var(--pico-muted-color);">{{ post.date }}</small>
+  </header>
+  <h3><a href="{{ root }}blog/{{ post.slug }}/index.html">{{ post.title }}</a></h3>
+  <p>{{ post.summary }}</p>
+  <footer>
+    <a href="{{ root }}blog/{{ post.slug }}/index.html">Read more &rarr;</a>
+  </footer>
+</article>
+{% endfor %}
+{% endif %}
+{% endblock %}

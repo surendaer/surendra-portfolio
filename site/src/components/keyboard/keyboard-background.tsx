@@ -35,18 +35,23 @@ type Node = {
   freeZone: boolean;
 };
 
+// CI frame nodes sit in a horizontal band at y=230 — between the Intelligence
+// Layer (y=145) and the DevSecOps gate (y=300). This makes the CI pipeline the
+// prominent focal element of Phase 1 without overlapping any mesh nodes.
+// Phase 2+: dev/test cluster phaseDim(0.08) makes them nearly invisible → no
+// Phase 3 impact; Phase 3 tree and mesh positions are completely unchanged.
 const FRAME_NODES: Node[] = [
-  { id:"plan",     label:"Plan",     x:130,  y:20,  color:"#2684FF", icon:"jira",       description:"Backlog · sprint planning · issue tracking",      cluster:"dev",       freeZone:false },
-  { id:"code",     label:"Code",     x:315,  y:20,  color:"#FC6D26", icon:"gitlab",     description:"Source control · branch strategy · MR reviews",   cluster:"dev",       freeZone:false },
-  { id:"build",    label:"Build",    x:495,  y:20,  color:"#ef4444", icon:"tekton",     description:"Pipeline-as-code · Docker · shared libraries",     cluster:"test",      freeZone:false },
-  { id:"test",     label:"Test",     x:675,  y:20,  color:"#f87171", icon:"python",     description:"Unit · integration · AI-driven MTTR < 3 min",      cluster:"test",      freeZone:true  },
-  // Stage icons must NOT duplicate mesh node icons — each tool appears exactly once
-  { id:"secure",   label:"Secure",   x:980,  y:175, color:"#dc2626", icon:"istio",          description:"mTLS · service mesh policy · zero-trust network",  cluster:"devsecops", freeZone:true  },
-  { id:"artifact", label:"Artifact", x:980,  y:375, color:"#22c55e", icon:"jfrog",          description:"65k downloads/min — JFrog at Walmart peak",        cluster:"gitops",    freeZone:true  },
-  // deploy frame node removed — replaced with a plain text label in the scene
-  { id:"infra",    label:"Grafana",  x:500,  y:580, color:"#F46800", icon:"grafana",        description:"Dashboards — observability · MTTR · SLO tracking", cluster:"sre",       freeZone:true  },
-  { id:"observe",  label:"Loki",     x:900,  y:580, color:"#F8B91E", icon:"loki",           description:"Log aggregation · Grafana LGTM stack · traces",      cluster:"sre",       freeZone:true  },
-  { id:"feedback", label:"Feedback", x:20,   y:435, color:"#fbbf24", icon:"backstage",      description:"Blameless postmortems · FinOps · improvement loop", cluster:"sre",      freeZone:false },
+  { id:"plan",     label:"Plan",     x:130,  y:230, color:"#2684FF", icon:"jira",      description:"Backlog · sprint planning · issue tracking",               cluster:"dev",       freeZone:false },
+  { id:"code",     label:"Code",     x:310,  y:230, color:"#FC6D26", icon:"gitlab",    description:"Source control · branch strategy · MR reviews",            cluster:"dev",       freeZone:false },
+  { id:"build",    label:"Build",    x:490,  y:230, color:"#2496ED", icon:"docker",    description:"Multi-stage Docker build · immutable container images",     cluster:"test",      freeZone:false },
+  { id:"test",     label:"Test",     x:670,  y:230, color:"#f87171", icon:"python",    description:"Unit · integration · AI-driven MTTR < 3 min",               cluster:"test",      freeZone:true  },
+  { id:"secure",   label:"Scan",     x:850,  y:230, color:"#dc2626", icon:"snyk",      description:"IaC scan (tfsec · Checkov) · SAST · dependency CVE scanning",cluster:"devsecops", freeZone:true  },
+  // Artifact drops below the CI row — represents the finalized build artefact
+  // handed off to ArgoCD for GitOps deployment (visible in Phase 3)
+  { id:"artifact", label:"Artifact", x:850,  y:390, color:"#22c55e", icon:"jfrog",     description:"65k downloads/min — JFrog at Walmart peak",                 cluster:"gitops",    freeZone:true  },
+  { id:"infra",    label:"Grafana",  x:500,  y:580, color:"#F46800", icon:"grafana",   description:"Dashboards — observability · MTTR · SLO tracking",          cluster:"sre",       freeZone:true  },
+  { id:"observe",  label:"Loki",     x:900,  y:580, color:"#F8B91E", icon:"loki",      description:"Log aggregation · Grafana LGTM stack · traces",             cluster:"sre",       freeZone:true  },
+  { id:"feedback", label:"Feedback", x:20,   y:435, color:"#fbbf24", icon:"backstage", description:"Blameless postmortems · FinOps · improvement loop",         cluster:"sre",       freeZone:false },
 ];
 
 // ── IBM Garage Method — three-band layout ─────────────────────────────────
@@ -144,9 +149,9 @@ const BRANCHES: Array<{ d: string; color: string; cluster: string; freeZone: boo
   // Intelligence Layer: build-frame(495,20) → kubeflow(400,145), then horizontal spine 175→825
   { d:"M 495,20 L 400,145 M 175,145 L 825,145",                         color:"#e2e8f0", cluster:"mlops",     freeZone:false },
 
-  // Secure Frame gate: secure-frame(980,175) → akeyless(750,300) → vault(500,300) → snyk(250,300)
+  // Secure gate: Scan frame node (850,230) → akeyless(750,300) → vault(500,300) → snyk(250,300)
   // Reads right-to-left — security sweeps inward as a hard gate across the full width
-  { d:"M 980,175 L 750,300 M 750,300 L 500,300 M 500,300 L 250,300",    color:"#f87171", cluster:"devsecops", freeZone:false },
+  { d:"M 864,230 L 750,300 M 750,300 L 500,300 M 500,300 L 250,300",    color:"#f87171", cluster:"devsecops", freeZone:false },
 
   // GitOps: full 3×2 grid mesh — deploy-frame anchors col-B, fans left to col-A and right to col-C
   //
@@ -181,7 +186,7 @@ const BRANCHES: Array<{ d: string; color: string; cluster: string; freeZone: boo
 // Mid band: y=365 (below devsecops y=300, above bottom-band y=420)  — gate label centred
 // Bottom band: y=465 (between row-1 y=420 and row-2 y=510)
 const XOPS = [
-  { label:"AIOps / MLOps", x:500, y:215, color:"#e2e8f0", cluster:"mlops"     },
+  { label:"AIOps / MLOps", x:500, y:105, color:"#e2e8f0", cluster:"mlops"     },
   { label:"DevSecOps",     x:500, y:365, color:"#f87171", cluster:"devsecops" },
   { label:"GitOps",        x:810, y:475, color:"#4ade80", cluster:"gitops"    }, // midpoint col-B(730)–col-C(890), between rows y=420 and y=530
   { label:"SRE / FinOps",  x:415, y:475, color:"#fbbf24", cluster:"sre"       }, // midpoint grafana(375)–prom(455), between rows
@@ -247,7 +252,10 @@ function PipelineNode({
   const baseScale   = popped ? 1.4 : active ? 1.2 : 1.0;
   const lift        = active ? -6 : 0;   // only active nodes lift, not proximity
   const glowR       = popped ? r + 12 : active ? r + 8 : proximity ? r + 5 : r + 2;
-  const labelBelow = frame ? (node.y >= 580 || node.x <= 20) : true;
+  // CI frame nodes sit at y=230 (mid-screen). Labels go below so they don't
+  // crowd the Intelligence Layer above. Legacy y=20 border nodes (none remain)
+  // would have got labels above; right/left edge nodes keep their anchor logic.
+  const labelBelow = frame ? (node.y >= 200 || node.x <= 20) : true;
   const labelY     = labelBelow ? node.y + r + 13 : node.y - r - 6;
   const labelX     = node.x <= 20 ? node.x - 10 : node.x >= 980 ? node.x + 10 : node.x;
   const anchor     = node.x <= 20 ? "end" : node.x >= 980 ? "start" : "middle";
@@ -261,11 +269,18 @@ function PipelineNode({
   // the tree is the focal element and every node in it must be equally readable.
   // hover snaps to full brightness + original colour for all nodes.
   const phase3Fade  = phase === 3 ? (active ? 1.0 : 0.50) : 1;
+
+  // Phase 1: dim GitOps / Platform / SRE mesh nodes so the CI pipeline frame nodes
+  // at y=230 are the visual focal point. mlops + devsecops stay visible as context.
+  const phase1GhostNode = !active && !proximity && phase === 1 &&
+    (node.cluster === "gitops" || node.cluster === "platform" || node.cluster === "sre");
+  const phase1NodeDim = phase1GhostNode ? 0.18 : 1;
+
   // In Phase 3 skip the content-dimming rule entirely so non-freeZone nodes
   // (mlflow, kubeflow, snyk, vault) reach the same 0.50 rest opacity as freeZone peers.
   const baseOpacity = phase === 3
     ? phaseDim * phase3Fade
-    : (dimmed ? 0.18 : 1.0) * phaseDim * phase3Fade;
+    : (dimmed ? 0.18 : 1.0) * phaseDim * phase3Fade * phase1NodeDim;
   const restGlowOpacity = ambientFreeZone ? 0.28 : 0.08;
   const restGlowWidth   = ambientFreeZone ? 1.0  : 0.4;
   const restBodyOpacity = ambientFreeZone ? 0.42 : 0.28;
@@ -341,6 +356,42 @@ function PipelineNode({
       >
         {node.label}
       </text>
+    </g>
+  );
+}
+
+// ── Phase 1 CI pipeline connector lines ───────────────────────────────────
+//
+//  Draws the flow between the 5 horizontal CI frame nodes at y=230
+//  and the Artifact node at y=390.  Lines are drawn gap-free between
+//  node edges (r=14 for frame nodes):
+//
+//    Plan(130) ──→ Code(310) ──→ Build(490) ──→ Test(670) ──→ Scan(850)
+//                                                                   ↓
+//                                                            Artifact(850,390)
+//
+//  Fades out smoothly as the user scrolls into Phase 2.
+function Phase1CIPipeline({ phase }: { phase: 1|2|3 }) {
+  const show = phase === 1;
+  const r = 14; // frame node radius
+  return (
+    <g style={{ opacity: show ? 1 : 0, transition:"opacity 0.8s ease", pointerEvents:"none" }}>
+      {/* Horizontal connectors — colour follows the SOURCE node */}
+      <path d={`M ${130+r},230 L ${310-r},230`} fill="none" stroke="#2684FF" strokeWidth="1.2" opacity="0.55"/>
+      <path d={`M ${310+r},230 L ${490-r},230`} fill="none" stroke="#FC6D26" strokeWidth="1.2" opacity="0.55"/>
+      <path d={`M ${490+r},230 L ${670-r},230`} fill="none" stroke="#2496ED" strokeWidth="1.2" opacity="0.55"/>
+      <path d={`M ${670+r},230 L ${850-r},230`} fill="none" stroke="#f87171" strokeWidth="1.2" opacity="0.55"/>
+      {/* Scan → Artifact vertical drop */}
+      <path d={`M 850,${230+r} L 850,${390-r}`} fill="none" stroke="#22c55e" strokeWidth="1.2" opacity="0.55"/>
+      {/* Arrow heads */}
+      {[{x:310-r-1,y:230,c:"#2684FF"},{x:490-r-1,y:230,c:"#FC6D26"},{x:670-r-1,y:230,c:"#2496ED"},{x:850-r-1,y:230,c:"#f87171"}].map((a,i)=>(
+        <polygon key={i} points={`${a.x},${a.y-3} ${a.x+5},${a.y} ${a.x},${a.y+3}`} fill={a.c} opacity="0.55"/>
+      ))}
+      <polygon points={`847,${390-r-1} 850,${390-r+4} 853,${390-r-1}`} fill="#22c55e" opacity="0.55"/>
+      {/* CI pipeline label */}
+      <text x="490" y="210" textAnchor="middle" fontSize="7"
+        fontFamily="'JetBrains Mono', monospace" letterSpacing="0.16em"
+        fill="#94a3b8" opacity="0.40">CI PIPELINE</text>
     </g>
   );
 }
@@ -848,8 +899,8 @@ function PipelineScene() {
         <linearGradient id="frame-grad" gradientUnits="userSpaceOnUse" x1="20" y1="20" x2="980" y2="20">
           <stop offset="0%"   stopColor="#3b82f6" stopOpacity="0.8"/>
           <stop offset="18%"  stopColor="#60a5fa" stopOpacity="0.8"/>
-          <stop offset="35%"  stopColor="#ef4444" stopOpacity="0.9"/>
-          <stop offset="52%"  stopColor="#dc2626" stopOpacity="0.9"/>
+          <stop offset="35%"  stopColor="#2496ED" stopOpacity="0.9"/>
+          <stop offset="52%"  stopColor="#1a7abf" stopOpacity="0.9"/>
           <stop offset="62%"  stopColor="#22c55e" stopOpacity="0.8"/>
           <stop offset="75%"  stopColor="#4ade80" stopOpacity="0.8"/>
           <stop offset="86%"  stopColor="#a78bfa" stopOpacity="0.8"/>
@@ -884,9 +935,15 @@ function PipelineScene() {
         // Non-freeZone branches (top/mid bands) stay recessed so they don't crowd content.
         const restOpacity  = b.freeZone ? 0.28 : 0.10;
         const restWidth    = b.freeZone ? 0.8  : 0.5;
+        // Phase 1: ghost out GitOps/SRE/Platform branches so CI pipeline is the
+        // focal visual. Cross-links and mlops/devsecops branches stay visible.
+        const branchPhase1Ghost = phase === 1 &&
+          (b.cluster === "gitops" || b.cluster === "sre" || b.cluster === "platform");
         const branchOpacity = phase === 3
           ? 0.10
-          : swapping ? 0.03 : dim ? 0.05 : on ? 0.55 : restOpacity;
+          : swapping ? 0.03
+          : branchPhase1Ghost ? 0.04
+          : dim ? 0.05 : on ? 0.55 : restOpacity;
         const branchWidth = on ? 1.4 : restWidth;
         return (
           <path key={i} d={b.d} fill="none"
@@ -945,6 +1002,9 @@ function PipelineScene() {
           onEnter={() => setHovered(n)} onLeave={() => setHovered(null)}/>
       ))}
 
+      {/* Phase 1: CI pipeline connector lines */}
+      <Phase1CIPipeline phase={phase} />
+
       {/* Phase 3: branching deployment tree */}
       <g style={{ opacity: phase === 3 ? 0.85 : 0, transition: "opacity 1.0s ease" }}>
         <Phase3Tree phase={phase} />
@@ -962,7 +1022,7 @@ function PipelineScene() {
       {/* Branch packets — paused in Phase 3 */}
       {phase !== 3 && [
         { path:"M 495,20 L 495,155 L 335,155",                   color:"#e2e8f0", dur:3,   begin:0.8 },
-        { path:"M 980,175 L 790,175 L 790,285 L 645,285",         color:"#f87171", dur:3.2, begin:0.3 },
+        { path:"M 864,230 L 790,230 L 790,285 L 645,285",         color:"#f87171", dur:3.2, begin:0.3 },
         { path:"M 855,580 L 855,435 L 715,435 L 715,315",         color:"#4ade80", dur:3.2, begin:1.5 },
         { path:"M 900,580 L 900,545 L 805,545 L 195,545",          color:"#9B59B6", dur:3,   begin:1.1 },
         { path:"M 20,435 L 165,435 L 165,315",                    color:"#a78bfa", dur:2.8, begin:0.5 },

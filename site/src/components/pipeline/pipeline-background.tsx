@@ -22,7 +22,10 @@ const emit = (s: Signal) => { _sig = s; _listeners.forEach(f => f(s)); };
 
 // ── Canvas ─────────────────────────────────────────────────────────────────
 const W = 1000, H = 600;
-const FRAME_PATH = "M 20,20 L 980,20 L 980,580 L 20,580 L 20,20";
+// Frame path sits 5 SVG units from each edge.
+// With xMidYMid slice the SVG fills the viewport, so this border appears
+// within ~5-10 CSS px of the actual screen edge on every monitor.
+const FRAME_PATH = "M 5,5 L 995,5 L 995,595 L 5,595 L 5,5";
 
 // ── freeZone: nodes on the RIGHT rail + BOTTOM arc.
 // These are NOT behind the hero text / content blocks, so they stay bright
@@ -41,10 +44,10 @@ type Node = {
 // Phase 2+: dev/test cluster phaseDim(0.08) makes them nearly invisible → no
 // Phase 3 impact; Phase 3 tree and mesh positions are completely unchanged.
 const FRAME_NODES: Node[] = [
-  { id:"plan",     label:"Plan",     x:130,  y:230, color:"#2684FF", icon:"jira",      description:"Backlog · sprint planning · issue tracking",               cluster:"dev",       freeZone:false },
+  { id:"plan",     label:"Plan",     x:130,  y:230, color:"#2684FF", icon:"atlassian", description:"Jira · Confluence · backlog · sprint planning · docs",       cluster:"dev",       freeZone:false },
   { id:"code",     label:"Code",     x:310,  y:230, color:"#FC6D26", icon:"gitlab",    description:"Source control · branch strategy · MR reviews",            cluster:"dev",       freeZone:false },
-  { id:"build",    label:"Build",    x:490,  y:230, color:"#2496ED", icon:"docker",    description:"Multi-stage Docker build · immutable container images",     cluster:"test",      freeZone:false },
-  { id:"test",     label:"Test",     x:670,  y:230, color:"#f87171", icon:"python",    description:"Unit · integration · AI-driven MTTR < 3 min",               cluster:"test",      freeZone:true  },
+  { id:"test",     label:"Quality",  x:490,  y:230, color:"#4E9BCD", icon:"sonarqube", description:"Static analysis · code quality gate · coverage threshold",   cluster:"test",      freeZone:false },
+  { id:"build",    label:"Build",    x:670,  y:230, color:"#2496ED", icon:"docker",    description:"Multi-stage Docker build · immutable container images",     cluster:"test",      freeZone:true  },
   { id:"secure",   label:"Scan",     x:850,  y:230, color:"#dc2626", icon:"snyk",      description:"IaC scan (tfsec · Checkov) · SAST · dependency CVE scanning",cluster:"devsecops", freeZone:true  },
   // Artifact drops below the CI row — represents the finalized build artefact
   // handed off to ArgoCD for GitOps deployment (visible in Phase 3)
@@ -89,7 +92,7 @@ const MESH_NODES: Node[] = [
   // ── MID BAND y=300 — Secure Frame (hard gate: Code → Deploy) ────────────
   { id:"snyk-m",      label:"Snyk",       x:250, y:300, color:"#f87171", icon:"snyk",       description:"SAST · SCA · container & IaC scanning",      cluster:"devsecops", freeZone:false },
   { id:"vault-m",     label:"Vault",      x:500, y:300, color:"#f87171", icon:"vault",      description:"Secrets management · dynamic credentials",    cluster:"devsecops", freeZone:false },
-  { id:"akeyless-m",  label:"Akeyless",   x:750, y:300, color:"#f87171", icon:"akeyless",   description:"Cloud-native secrets · PKI at scale",         cluster:"devsecops", freeZone:true  },
+  { id:"akeyless-m",  label:"Akeyless",   x:640, y:320, color:"#f87171", icon:"akeyless",   description:"Cloud-native secrets · PKI at scale",         cluster:"devsecops", freeZone:true  },
 
   // ── BOTTOM BAND — Foundation Layer (Platform · SRE · GitOps) ────────────
   //
@@ -146,12 +149,13 @@ const HOVER_RADIUS = 22;   // was 28 — tighter direct-hit target
 //  Feedback loop:      feedback-frame → Platform chain (Garage: Co-operate → re-inform Plan)
 
 const BRANCHES: Array<{ d: string; color: string; cluster: string; freeZone: boolean }> = [
-  // Intelligence Layer: build-frame(495,20) → kubeflow(400,145), then horizontal spine 175→825
-  { d:"M 495,20 L 400,145 M 175,145 L 825,145",                         color:"#e2e8f0", cluster:"mlops",     freeZone:false },
+  // Intelligence Layer: build-frame(490,230) top-edge → kubeflow(400,145), then horizontal spine 175→825
+  // Build CI node feeds the MLOps/AIOps layer above it (build triggers model re-evaluation).
+  { d:"M 490,216 L 400,145 M 175,145 L 825,145",                        color:"#e2e8f0", cluster:"mlops",     freeZone:false },
 
-  // Secure gate: Scan frame node (850,230) → akeyless(750,300) → vault(500,300) → snyk(250,300)
+  // Secure gate: Scan frame node (850,230) → akeyless(640,270) → vault(500,300) → snyk(250,300)
   // Reads right-to-left — security sweeps inward as a hard gate across the full width
-  { d:"M 864,230 L 750,300 M 750,300 L 500,300 M 500,300 L 250,300",    color:"#f87171", cluster:"devsecops", freeZone:false },
+  { d:"M 864,230 L 640,320 M 640,320 L 500,300 M 500,300 L 250,300",    color:"#f87171", cluster:"devsecops", freeZone:false },
 
   // GitOps: full 3×2 grid mesh — deploy-frame anchors col-B, fans left to col-A and right to col-C
   //
@@ -173,8 +177,8 @@ const BRANCHES: Array<{ d: string; color: string; cluster: string; freeZone: boo
   // Cross: snyk(250,300) ↘ tf(175,420) — security scans IaC before provisioning
   { d:"M 250,300 L 175,420",                                             color:"#6b7280", cluster:"cross",     freeZone:false },
 
-  // Cross: akeyless(750,300) ↘ argocd(730,420) — secrets gate before GitOps deploy
-  { d:"M 750,300 L 730,420",                                             color:"#6b7280", cluster:"cross",     freeZone:true  },
+  // Cross: akeyless(640,320) ↘ argocd(730,420) — secrets gate before GitOps deploy
+  { d:"M 640,320 L 730,420",                                             color:"#6b7280", cluster:"cross",     freeZone:true  },
 
   // Semantic: argocd(730,420) → helm(730,530) — ArgoCD applies via Helm charts
   // Dedicated entry so this relationship glows independently of the grid mesh
@@ -376,18 +380,23 @@ function Phase1CIPipeline({ phase }: { phase: 1|2|3 }) {
   const r = 14; // frame node radius
   return (
     <g style={{ opacity: show ? 1 : 0, transition:"opacity 0.8s ease", pointerEvents:"none" }}>
-      {/* Horizontal connectors — colour follows the SOURCE node */}
+      {/* Horizontal connectors — colour follows the SOURCE node
+           Plan(130) → Code(310) → Quality/SonarQube(490) → Build/Docker(670) → Scan/Snyk(850) */}
       <path d={`M ${130+r},230 L ${310-r},230`} fill="none" stroke="#2684FF" strokeWidth="1.2" opacity="0.55"/>
       <path d={`M ${310+r},230 L ${490-r},230`} fill="none" stroke="#FC6D26" strokeWidth="1.2" opacity="0.55"/>
-      <path d={`M ${490+r},230 L ${670-r},230`} fill="none" stroke="#2496ED" strokeWidth="1.2" opacity="0.55"/>
-      <path d={`M ${670+r},230 L ${850-r},230`} fill="none" stroke="#f87171" strokeWidth="1.2" opacity="0.55"/>
-      {/* Scan → Artifact vertical drop */}
-      <path d={`M 850,${230+r} L 850,${390-r}`} fill="none" stroke="#22c55e" strokeWidth="1.2" opacity="0.55"/>
-      {/* Arrow heads */}
-      {[{x:310-r-1,y:230,c:"#2684FF"},{x:490-r-1,y:230,c:"#FC6D26"},{x:670-r-1,y:230,c:"#2496ED"},{x:850-r-1,y:230,c:"#f87171"}].map((a,i)=>(
+      <path d={`M ${490+r},230 L ${670-r},230`} fill="none" stroke="#4E9BCD" strokeWidth="1.2" opacity="0.55"/>
+      <path d={`M ${670+r},230 L ${850-r},230`} fill="none" stroke="#2496ED" strokeWidth="1.2" opacity="0.55"/>
+      {/* Scan(Snyk) → Artifact vertical drop */}
+      <path d={`M 850,${230+r} L 850,${390-r}`} fill="none" stroke="#dc2626" strokeWidth="1.2" opacity="0.55"/>
+      {/* Build(Docker) → Artifact(JFrog) diagonal — shows built image lands in registry */}
+      <path d={`M ${670+r},${230+r} Q 760,310 ${850-r},${390-r}`}
+        fill="none" stroke="#2496ED" strokeWidth="1.0" strokeDasharray="4 3" opacity="0.45"/>
+      {/* Arrow heads (horizontal) */}
+      {[{x:310-r-1,y:230,c:"#2684FF"},{x:490-r-1,y:230,c:"#FC6D26"},{x:670-r-1,y:230,c:"#4E9BCD"},{x:850-r-1,y:230,c:"#2496ED"}].map((a,i)=>(
         <polygon key={i} points={`${a.x},${a.y-3} ${a.x+5},${a.y} ${a.x},${a.y+3}`} fill={a.c} opacity="0.55"/>
       ))}
-      <polygon points={`847,${390-r-1} 850,${390-r+4} 853,${390-r-1}`} fill="#22c55e" opacity="0.55"/>
+      {/* Arrow head on Scan → Artifact */}
+      <polygon points={`847,${390-r-1} 850,${390-r+4} 853,${390-r-1}`} fill="#dc2626" opacity="0.55"/>
       {/* CI pipeline label */}
       <text x="490" y="210" textAnchor="middle" fontSize="7"
         fontFamily="'JetBrains Mono', monospace" letterSpacing="0.16em"
@@ -801,33 +810,42 @@ function PipelineScene() {
   const phaseRef = useRef<1|2|3>(1);
   useEffect(() => { phaseRef.current = phase; }, [phase]);
 
+  // RAF token — ensures we run the hit-test logic at most once per animation
+  // frame regardless of how many mousemove events the browser fires (can be
+  // 100-200/s on fast mice without throttling).
+  const rafRef = useRef<number | null>(null);
+
   const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
-    const svg = svgRef.current; if (!svg) return;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX; pt.y = e.clientY;
-    const sp = pt.matrixTransform(svg.getScreenCTM()!.inverse());
-    const near = new Set<string>();
-    let closest: Node | null = null, minDist = Infinity;
-    const ph = phaseRef.current;
-    for (const node of ALL_NODES) {
-      // Resolve the node's effective (visually rendered) position for the
-      // current phase — base coords are wrong once CSS transforms are applied.
-      const target = ph === 3
-        ? (PHASE3_TARGETS[node.id] ?? PHASE2_TARGETS[node.id] ?? null)
-        : ph === 2
-          ? (PHASE2_TARGETS[node.id] ?? null)
-          : null;
-      const ex = target ? target.x : node.x;
-      const ey = target ? target.y : node.y;
-      const d = Math.hypot(ex - sp.x, ey - sp.y);
-      if (d < PROX_RADIUS) near.add(node.id);
-      if (d < minDist) { minDist = d; closest = node; }
-    }
-    setProxSet(near);
-    setHovered(minDist < HOVER_RADIUS ? closest : null);
+    if (rafRef.current !== null) return;           // already have a frame pending
+    const cx = e.clientX, cy = e.clientY;          // capture coords before async
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      const svg = svgRef.current; if (!svg) return;
+      const pt = svg.createSVGPoint();
+      pt.x = cx; pt.y = cy;
+      const sp = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+      const near = new Set<string>();
+      let closest: Node | null = null, minDist = Infinity;
+      const ph = phaseRef.current;
+      for (const node of ALL_NODES) {
+        const target = ph === 3
+          ? (PHASE3_TARGETS[node.id] ?? PHASE2_TARGETS[node.id] ?? null)
+          : ph === 2
+            ? (PHASE2_TARGETS[node.id] ?? null)
+            : null;
+        const ex = target ? target.x : node.x;
+        const ey = target ? target.y : node.y;
+        const d = Math.hypot(ex - sp.x, ey - sp.y);
+        if (d < PROX_RADIUS) near.add(node.id);
+        if (d < minDist) { minDist = d; closest = node; }
+      }
+      setProxSet(near);
+      setHovered(minDist < HOVER_RADIUS ? closest : null);
+    });
   }, []);
 
   const handleMouseLeave = useCallback(() => {
+    if (rafRef.current !== null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     setProxSet(new Set()); setHovered(null);
   }, []);
 
@@ -881,9 +899,9 @@ function PipelineScene() {
     <svg
       ref={svgRef}
       viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="xMidYMid meet"
+      preserveAspectRatio="xMidYMid slice"
       className="w-full h-full pipeline-breathe"
-      style={{ opacity:1, overflow:"visible", display:"block" }}
+      style={{ opacity:1, display:"block" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
@@ -1021,8 +1039,8 @@ function PipelineScene() {
 
       {/* Branch packets — paused in Phase 3 */}
       {phase !== 3 && [
-        { path:"M 495,20 L 495,155 L 335,155",                   color:"#e2e8f0", dur:3,   begin:0.8 },
-        { path:"M 864,230 L 790,230 L 790,285 L 645,285",         color:"#f87171", dur:3.2, begin:0.3 },
+        { path:"M 490,216 L 490,155 L 335,155",                   color:"#e2e8f0", dur:3,   begin:0.8 },
+        { path:"M 864,230 L 700,230 L 700,260 L 590,260",         color:"#f87171", dur:3.2, begin:0.3 },
         { path:"M 855,580 L 855,435 L 715,435 L 715,315",         color:"#4ade80", dur:3.2, begin:1.5 },
         { path:"M 900,580 L 900,545 L 805,545 L 195,545",          color:"#9B59B6", dur:3,   begin:1.1 },
         { path:"M 20,435 L 165,435 L 165,315",                    color:"#a78bfa", dur:2.8, begin:0.5 },
@@ -1042,7 +1060,7 @@ export default function KeyboardBackground() {
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
   return (
-    <div className="w-full h-full fixed inset-0 z-0 pointer-events-none overflow-hidden">
+    <div className="w-full h-full fixed inset-0 z-0 pointer-events-none overflow-hidden bg-background">
 
       {/* Ambient right-edge glow: red (DevSecOps) fading to green (GitOps prod) */}
       <div className="absolute inset-0" style={{ background:

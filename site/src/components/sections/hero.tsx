@@ -116,7 +116,7 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
       </div>
-      {/* Right column: empty — keyboard floats here via Spline x: 225 offset */}
+      {/* Right column: empty — pipeline background shows through */}
       <div className="hidden md:block col-span-1 h-full" />
     </section>
   );

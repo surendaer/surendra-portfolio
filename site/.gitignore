@@ -6,3 +6,6 @@ node_modules/
 .env*.local
 tsconfig.tsbuildinfo
 
+# CI-generated at runtime by scraper.py — not source-controlled
+public/data/news.json
+

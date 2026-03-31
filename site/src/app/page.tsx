@@ -1,13 +1,26 @@
+import dynamic from "next/dynamic";
 import HeroSection from "@/components/sections/hero";
-import WorkSection from "@/components/sections/work";
-import ProjectsSection from "@/components/sections/projects";
-import SkillsSection from "@/components/sections/skills";
-import NewsSection from "@/components/sections/news";
-import ContactSection from "@/components/sections/contact";
 import Nav from "@/components/layout/nav";
 import Footer from "@/components/layout/footer";
-import KeyboardBackground from "@/components/keyboard/keyboard-background";
-import SkillTooltip from "@/components/keyboard/skill-tooltip";
+
+// Animated SVG background — pure visual, no SSR value, load after HTML paint.
+const KeyboardBackground = dynamic(
+  () => import("@/components/pipeline/pipeline-background"),
+  { ssr: false }
+);
+// Hover tooltip — depends on KeyboardBackground signal bus, client-only.
+const SkillTooltip = dynamic(
+  () => import("@/components/pipeline/skill-tooltip"),
+  { ssr: false }
+);
+
+// Below-fold sections: code-split so the initial JS bundle stays lean.
+// Static HTML is still pre-rendered at build time; only the JS chunk is deferred.
+const SkillsSection  = dynamic(() => import("@/components/sections/skills"));
+const WorkSection    = dynamic(() => import("@/components/sections/work"));
+const ProjectsSection = dynamic(() => import("@/components/sections/projects"));
+const NewsSection    = dynamic(() => import("@/components/sections/news"));
+const ContactSection = dynamic(() => import("@/components/sections/contact"));
 
 // Spacer — sections are now transparent so this is pure breathing room.
 // No gradients needed: the pipeline shows through everywhere between cards.

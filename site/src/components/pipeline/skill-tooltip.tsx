@@ -1,5 +1,5 @@
 "use client";
-import { useSelectedSkill } from "./keyboard-background";
+import { useSelectedSkill } from "./pipeline-background";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
